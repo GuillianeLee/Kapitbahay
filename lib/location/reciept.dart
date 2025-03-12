@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '/negotiable/tasknotcomplete.dart';
-import 'Rating.dart';
+import '/task/taskrating.dart';
 
 class ReceiptScreen extends StatelessWidget {
   @override
@@ -66,14 +66,25 @@ class ReceiptScreen extends StatelessWidget {
                           );
                         },
                       ),
-                      buildButton("Done",  Color(0xFF45B28F), Colors.white, onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => UserRatingPopup(),
-                          ),
-                        );
-                      }),
+                      buildButton(
+                        "Done",
+                        Color(0xFF45B28F),
+                        Colors.white,
+                        onPressed: () {
+                          String userName = "Guillermo Raby"; // Dynamic username
+                          String userImage = "https://via.placeholder.com/150"; // Example image URL
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => RatingPopup(
+                                userName: userName,
+                                userImage: userImage,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
                     ],
                   ),
                 ],

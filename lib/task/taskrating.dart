@@ -82,7 +82,7 @@ class _RatingPopupState extends State<RatingPopup> {
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green.shade100,
+                    backgroundColor: Color(0xFFDCF5ED),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -99,7 +99,7 @@ class _RatingPopupState extends State<RatingPopup> {
                     Navigator.pop(context);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green.shade400,
+                    backgroundColor: Color(0xFF45B28F),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),

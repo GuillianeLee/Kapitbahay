@@ -37,7 +37,7 @@ class OfferPopup extends StatelessWidget {
 
                       Row(
                         children: const [
-                          Icon(Icons.phone, color: Colors.green, size: 18),
+                          Icon(Icons.phone, color: Color(0xFF45B28F), size: 18),
                           SizedBox(width: 5),
                           Text("0912 678 8919"),
                         ],
@@ -62,7 +62,7 @@ class OfferPopup extends StatelessWidget {
                           const SizedBox(width: 8),
                           TextButton(
                             onPressed: () {}, // Navigate to profile
-                            child: const Text("view profile", style: TextStyle(color: Colors.green)),
+                            child: const Text("view profile", style: TextStyle(color: Color(0xFF45B28F))),
                           ),
                         ],
                       ),
@@ -88,7 +88,7 @@ class OfferPopup extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () => Navigator.pop(context), // Close popup
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green[100],
+                      backgroundColor: Color(0xFFDCF5ED),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -107,7 +107,7 @@ class OfferPopup extends StatelessWidget {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
+                      backgroundColor: Color(0xFF45B28F),
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),

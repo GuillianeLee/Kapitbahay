@@ -47,7 +47,7 @@ class _ChatOfferScreenState extends State<ChatOfferScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: const BoxDecoration(
-              color: Color.fromRGBO(69, 178, 143, 1),
+              color: Color(0xFF45B28F),
               borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
             ),
             child: Row(
@@ -112,7 +112,7 @@ class _ChatOfferScreenState extends State<ChatOfferScreen> {
                       ElevatedButton(
                         onPressed: _submitCounterOffer, // Call function to submit offer
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
+                          backgroundColor: Color(0xFF45B28F),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -134,8 +134,7 @@ class _ChatOfferScreenState extends State<ChatOfferScreen> {
                             });
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green[100],
-                            shape: RoundedRectangleBorder(
+                            backgroundColor: Color(0xFFDCF5ED),                            shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
@@ -154,7 +153,7 @@ class _ChatOfferScreenState extends State<ChatOfferScreen> {
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
+                            backgroundColor: Color(0xFF45B28F),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
@@ -203,7 +202,7 @@ class _ChatOfferScreenState extends State<ChatOfferScreen> {
                 ),
                 const SizedBox(width: 8),
                 IconButton(
-                  icon: const Icon(Icons.send, color: Colors.green),
+                  icon: const Icon(Icons.send, color: Color(0xFF45B28F)),
                   onPressed: _sendMessage, // Call function to send message
                 ),
               ],

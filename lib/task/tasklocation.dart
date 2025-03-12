@@ -72,7 +72,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
               },
               child: Row(
                 children: [
-                  Icon(Icons.person_pin_circle, color: Colors.green.shade600),
+                  Icon(Icons.person_pin_circle, color: Color(0xFF45B28F)),
                   const SizedBox(width: 10),
                   const Text("Use my current location", style: TextStyle(fontSize: 16)),
                 ],

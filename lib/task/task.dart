@@ -80,7 +80,7 @@ class TaskSelectionScreen extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 8,
-          backgroundColor: isActive ? Colors.green : Colors.grey,
+          backgroundColor: isActive ? Color(0xFF45B28F) : Colors.grey,
         ),
         const SizedBox(height: 4),
         Text(
