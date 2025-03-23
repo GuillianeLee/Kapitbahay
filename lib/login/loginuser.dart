@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '/login/signup.dart';
+import '/firebase/firestore.dart';
+import '/dashboard/home.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginWidget extends StatefulWidget {
   @override
@@ -8,38 +12,67 @@ class LoginWidget extends StatefulWidget {
 }
 
 class _LoginWidgetState extends State<LoginWidget> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _pwController = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  Future<void> login(BuildContext context) async {
+    final authService = AuthService();
+    try {
+      await authService.signInWithEmailPassword(
+        _emailController.text,
+        _pwController.text,
+      );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => DashboardScreen()),
+      );
+    } catch (e) {
+      showDialog(
+        context: context,
+        builder: (context) =>
+            AlertDialog(
+              title: const Text("Error"),
+              content: Text(e.toString()),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text("OK"),
+                ),
+              ],
+            ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
           width: double.infinity,
-          decoration: BoxDecoration(
-            color: Color.fromRGBO(255, 255, 255, 1),
-          ),
+          decoration: BoxDecoration(color: Color.fromRGBO(255, 255, 255, 1)),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                SizedBox(height: 80), // top spacing
-
-                // Welcome Text
+                SizedBox(height: 80),
                 Text(
                   'Welcome back! Glad to see you again!',
                   textAlign: TextAlign.left,
                   style: TextStyle(
-                    color: Color.fromRGBO(0, 0, 0, 1),
+                    color: Colors.black,
                     fontFamily: 'Inter',
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    height: 1,
                   ),
                 ),
                 SizedBox(height: 40),
 
-                // Email Field
+                // Email Input
                 TextFormField(
+                  controller: _emailController,
                   decoration: InputDecoration(
                     hintText: "Enter your email",
                     hintStyle: TextStyle(color: Colors.grey[500]),
@@ -53,8 +86,9 @@ class _LoginWidgetState extends State<LoginWidget> {
                 ),
                 SizedBox(height: 20),
 
-                // Password Field
+                // Password Input
                 TextFormField(
+                  controller: _pwController,
                   obscureText: true,
                   decoration: InputDecoration(
                     hintText: "Enter your password",
@@ -67,7 +101,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                     ),
                   ),
                 ),
-                SizedBox(height: 0.00001),
+                SizedBox(height: 10),
 
                 // Forgot Password
                 Align(
@@ -86,9 +120,7 @@ class _LoginWidgetState extends State<LoginWidget> {
 
                 // Login Button
                 ElevatedButton(
-                  onPressed: () {
-                    // Login logic
-                  },
+                  onPressed: () => login(context),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color.fromRGBO(69, 178, 143, 1),
                     minimumSize: Size(double.infinity, 50),
@@ -97,31 +129,18 @@ class _LoginWidgetState extends State<LoginWidget> {
                     ),
                   ),
                   child: Text(
-                    "LogIn",
+                    "Log In",
                     style: TextStyle(fontSize: 18, color: Colors.white),
                   ),
                 ),
                 SizedBox(height: 30),
-
-                // Divider with Text
-                Row(
-                  children: [
-                    Expanded(child: Divider(color: Colors.grey)),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Text("Or Login with", style: TextStyle(color: Colors.grey)),
-                    ),
-                    Expanded(child: Divider(color: Colors.grey)),
-                  ],
-                ),
-                SizedBox(height: 20),
 
                 // Social Login Buttons
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     IconButton(
-                      icon: SvgPicture.asset('assets/images/facebook.svg'), // Replace with your Facebook SVG
+                      icon: SvgPicture.asset('assets/images/facebook.svg'),
                       iconSize: 40,
                       onPressed: () {
                         // Facebook login logic
@@ -146,20 +165,19 @@ class _LoginWidgetState extends State<LoginWidget> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                  Text(
-                  "Don’t have an account?",
-                  style: TextStyle(color: Colors.grey),
-                ),
-            TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => SignupWidget()),
-                  );
-                },
-                child: Text(
-                    "Register Now",
-                    style: TextStyle(color: Color.fromRGBO(69, 178, 143, 1)),
+                    Text("Don’t have an account?",
+                        style: TextStyle(color: Colors.grey)),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => SignupWidget()));
+                      },
+                      child: Text(
+                        "Register Now",
+                        style:
+                        TextStyle(color: Color.fromRGBO(69, 178, 143, 1)),
                       ),
                     ),
                   ],

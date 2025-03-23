@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '/login/loginuser.dart';
 import '/dashboard/home.dart';
-import '/permissions/permissions.dart';
+import '/firebase/firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SignupWidget extends StatefulWidget {
   @override
@@ -10,6 +11,70 @@ class SignupWidget extends StatefulWidget {
 }
 
 class _SignupWidgetState extends State<SignupWidget> {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _pwController = TextEditingController();
+  final TextEditingController _confirmpwController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+
+  Future<void> signup(BuildContext context) async {
+    final authService = AuthService();
+
+    // Check if any field is empty
+    if (_nameController.text.isEmpty ||
+        _emailController.text.isEmpty ||
+        _phoneController.text.isEmpty ||
+        _pwController.text.isEmpty ||
+        _confirmpwController.text.isEmpty) {
+      showDialog(
+        context: context,
+        builder: (context) => const AlertDialog(
+          title: Text("Error"),
+          content: Text("All fields are required."),
+        ),
+      );
+      return;
+    }
+
+    if (_pwController.text == _confirmpwController.text) {
+      try {
+        await authService.signUpWithEmailPassword(
+          _emailController.text,
+          _pwController.text,
+        );
+
+        // Navigate to home screen after successful signup
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomeScreen()),
+        );
+      } catch (e) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("Error"),
+            content: Text(e.toString().isNotEmpty ? e.toString() : "An unknown error occurred."),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("OK"),
+              ),
+            ],
+          ),
+        );
+      }
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) => const AlertDialog(
+          title: Text("Error"),
+          content: Text("Passwords Don't Match"),
+        ),
+      );
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,8 +105,25 @@ class _SignupWidgetState extends State<SignupWidget> {
                 ),
                 SizedBox(height: 40),
 
+                // Name Field
+                TextFormField(
+                  controller: _nameController,
+                  decoration: InputDecoration(
+                    hintText: "Full Name",
+                    hintStyle: TextStyle(color: Colors.grey[500]),
+                    filled: true,
+                    fillColor: Colors.grey[200],
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 20),
+
                 // Email Field
                 TextFormField(
+                  controller: _emailController,
                   decoration: InputDecoration(
                     hintText: "Enter your email",
                     hintStyle: TextStyle(color: Colors.grey[500]),
@@ -57,7 +139,7 @@ class _SignupWidgetState extends State<SignupWidget> {
 
                 // Number
                 TextFormField(
-                  obscureText: true,
+                  controller: _phoneController,
                   decoration: InputDecoration(
                     hintText: "+63",
                     hintStyle: TextStyle(color: Colors.grey[500]),
@@ -71,24 +153,9 @@ class _SignupWidgetState extends State<SignupWidget> {
                 ),
                 SizedBox(height: 20),
 
-                // Email
-                TextFormField(
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    hintText: "Enter your email",
-                    hintStyle: TextStyle(color: Colors.grey[500]),
-                    filled: true,
-                    fillColor: Colors.grey[200],
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 20),
-
                 // Create Password
                 TextFormField(
+                  controller: _pwController,
                   obscureText: true,
                   decoration: InputDecoration(
                     hintText: "Create new password",
@@ -105,6 +172,7 @@ class _SignupWidgetState extends State<SignupWidget> {
 
                 // Re-enter Password
                 TextFormField(
+                  controller: _confirmpwController,
                   obscureText: true,
                   decoration: InputDecoration(
                     hintText: "Re-enter your password",
@@ -121,13 +189,7 @@ class _SignupWidgetState extends State<SignupWidget> {
 
                 // Login Button
                 ElevatedButton(
-                  onPressed: () {
-                    // ProfilesetupWidget
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => LocationPermissionDialog()),
-                    );
-                  },
+                  onPressed: () => signup(context),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color.fromRGBO(69, 178, 143, 1),
                     minimumSize: Size(double.infinity, 50),
@@ -140,7 +202,7 @@ class _SignupWidgetState extends State<SignupWidget> {
                     style: TextStyle(fontSize: 18, color: Colors.white),
                   ),
                 ),
-                SizedBox(height: 30),
+                SizedBox(height: 20),
 
                 // Divider with Text
                 Row(
@@ -148,7 +210,8 @@ class _SignupWidgetState extends State<SignupWidget> {
                     Expanded(child: Divider(color: Colors.grey)),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Text("Or Login with", style: TextStyle(color: Colors.grey)),
+                      child: Text("Or Login with",
+                          style: TextStyle(color: Colors.grey)),
                     ),
                     Expanded(child: Divider(color: Colors.grey)),
                   ],
@@ -160,7 +223,7 @@ class _SignupWidgetState extends State<SignupWidget> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     IconButton(
-                      icon: SvgPicture.asset('assets/images/facebook.svg'), // Replace with your Facebook SVG
+                      icon: SvgPicture.asset('assets/images/facebook.svg'),
                       iconSize: 40,
                       onPressed: () {
                         // Facebook login logic
@@ -193,12 +256,14 @@ class _SignupWidgetState extends State<SignupWidget> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => LoginWidget()),
+                          MaterialPageRoute(
+                              builder: (context) => LoginWidget()),
                         );
                       },
                       child: Text(
                         "Login Now",
-                        style: TextStyle(color: Color.fromRGBO(69, 178, 143, 1)),
+                        style:
+                        TextStyle(color: Color.fromRGBO(69, 178, 143, 1)),
                       ),
                     ),
                   ],
@@ -212,4 +277,3 @@ class _SignupWidgetState extends State<SignupWidget> {
     );
   }
 }
-
