@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "859830987876",
+    "project_id": "kapit-bahay",
+    "storage_bucket": "kapit-bahay.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:859830987876:android:82205300424b1ee663c371",
+        "android_client_info": {
+          "package_name": "com.example.kapitbahayapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAsmOG3Z1oSBD-sKNUDILs-xiKiTAhEvQE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
