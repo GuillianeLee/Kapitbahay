@@ -10,15 +10,15 @@ class _ChatScreenState extends State<ChatScreen> {
   List<String> messages = [
     "Parcel received, on the way to deliver",
     "Okay, same location"
-  ]; // Stores chat messages
+  ];
 
-  // Function to send a message
+  // send a message
   void _sendMessage() {
     String message = _messageController.text.trim();
     if (message.isNotEmpty) {
       setState(() {
-        messages.add(message); // Add new message to list
-        _messageController.clear(); // Clear input field
+        messages.add(message);
+        _messageController.clear();
       });
     }
   }
@@ -31,7 +31,7 @@ class _ChatScreenState extends State<ChatScreen> {
           // Header
           Container(
             padding: EdgeInsets.all(16),
-            color: Colors.green.shade400,
+            color: Color(0xFF45B28F),
             child: Row(
               children: [
                 CircleAvatar(
@@ -58,14 +58,14 @@ class _ChatScreenState extends State<ChatScreen> {
               child: ListView.builder(
                 itemCount: messages.length,
                 itemBuilder: (context, index) {
-                  bool isUser = index % 2 != 0; // Alternate sender logic
+                  bool isUser = index % 2 != 0;
                   return Align(
                     alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
                     child: Container(
                       padding: EdgeInsets.all(12),
                       margin: EdgeInsets.symmetric(vertical: 4),
                       decoration: BoxDecoration(
-                        color: isUser ? Colors.green.shade400 : Colors.green.shade100,
+                        color: isUser ? Color(0xFF45B28F) : Colors.green.shade100,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
@@ -104,8 +104,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
                 SizedBox(width: 10),
                 IconButton(
-                  onPressed: _sendMessage, // Call send function
-                  icon: Icon(Icons.send, color: Colors.green.shade400),
+                  onPressed: _sendMessage,
+                  icon: Icon(Icons.send, color: Color(0xFF45B28F)),
                 ),
               ],
             ),

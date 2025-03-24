@@ -21,7 +21,7 @@ class _ChatOfferScreenState extends State<ChatOfferScreen> {
       setState(() {
         chatMessages.add("You offered PHP $offer");
         _counterOfferController.clear();
-        _isDeclined = false; // Hide input after offer submission
+        _isDeclined = false;
       });
     }
   }
@@ -134,7 +134,8 @@ class _ChatOfferScreenState extends State<ChatOfferScreen> {
                             });
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFFDCF5ED),                            shape: RoundedRectangleBorder(
+                            backgroundColor: Color(0xFFDCF5ED),
+                            shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
@@ -148,7 +149,7 @@ class _ChatOfferScreenState extends State<ChatOfferScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const UserInfoDone(), // Ensure this class exists
+                                builder: (context) => const UserInfoDone(),
                               ),
                             );
                           },
@@ -203,7 +204,7 @@ class _ChatOfferScreenState extends State<ChatOfferScreen> {
                 const SizedBox(width: 8),
                 IconButton(
                   icon: const Icon(Icons.send, color: Color(0xFF45B28F)),
-                  onPressed: _sendMessage, // Call function to send message
+                  onPressed: _sendMessage,
                 ),
               ],
             ),

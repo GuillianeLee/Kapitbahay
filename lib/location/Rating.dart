@@ -87,7 +87,7 @@ class _UserRatingPopupState extends State<UserRatingPopup> {
                         borderRadius: BorderRadius.circular(8), // Rounded corners
                       ),
                     ),
-                    child: Text("Submit", style: TextStyle(color: Colors.white)), // Correctly placed child
+                    child: Text("Submit", style: TextStyle(color: Colors.white)),
                   ),
                 ),
               ],

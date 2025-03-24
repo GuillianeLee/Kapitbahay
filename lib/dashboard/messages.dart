@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kapitbahayapp/negotiable/chatif.dart';
 
 class MessagesScreen extends StatefulWidget {
   @override
@@ -78,6 +79,15 @@ class _MessagesScreenState extends State<MessagesScreen> {
           title: Text('Shyrine Jardin', style: TextStyle(fontWeight: FontWeight.bold)),
           subtitle: Text('This chat remains open for this ...'),
           trailing: Text('Sun', style: TextStyle(color: Colors.grey)),
+          onTap: () {
+            // detailed chat screen
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ChatOfferScreen(),
+              ),
+            );
+          },
         ),
       ],
     );

@@ -20,7 +20,7 @@ class _SignupWidgetState extends State<SignupWidget> {
   Future<void> signup(BuildContext context) async {
     final authService = AuthService();
 
-    // Check if any field is empty
+    // is any field is empty?
     if (_nameController.text.isEmpty ||
         _emailController.text.isEmpty ||
         _phoneController.text.isEmpty ||
@@ -41,12 +41,12 @@ class _SignupWidgetState extends State<SignupWidget> {
         await authService.signUpWithEmailPassword(
           _emailController.text,
           _pwController.text,
+          _nameController.text, // name here
         );
 
-        // Navigate to home screen after successful signup
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => HomeScreen()),
+          MaterialPageRoute(builder: (context) => DashboardScreen()),
         );
       } catch (e) {
         showDialog(
@@ -73,7 +73,6 @@ class _SignupWidgetState extends State<SignupWidget> {
       );
     }
   }
-
 
   @override
   Widget build(BuildContext context) {

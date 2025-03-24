@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '/dashboard/profilesetting.dart';
-import '/firebase/firestore.dart';
+import '/firebase/firestoreservices.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -9,6 +11,20 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  Stream<DocumentSnapshot> getUserData() {
+    final user = _auth.currentUser;
+    if (user != null) {
+      return FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .snapshots();
+    } else {
+      throw Exception('User not logged in');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,16 +51,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ),
                       SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "Juan Dela Cruz", // 🔥 Display fetched name
-                            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(width: 6),
-                          Icon(Icons.verified, color: Colors.green, size: 20),
-                        ],
+                      StreamBuilder<DocumentSnapshot>(
+                        stream: getUserData(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return Center(child: CircularProgressIndicator());
+                          }
+
+                          if (!snapshot.hasData || snapshot.data == null) {
+                            return Center(child: Text("No user data found"));
+                          }
+
+                          // Retrieve user data from Firestore
+                          final userData = snapshot.data!;
+                          final name = userData['name'] ?? 'No name available';
+
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                name,
+                                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(width: 6),
+                              Icon(Icons.verified, color: Colors.green, size: 20),
+                            ],
+                          );
+                        },
                       ),
                       // Verification Badges
                       sectionTitle('Verification Badges'),
@@ -67,22 +100,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       // Reviews
                       sectionTitle('Reviews'),
                       Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             '5.00',
                             style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                           ),
-                          SizedBox(width: 6),
-                          Icon(Icons.star, color: Colors.amber, size: 24),
+                          SizedBox(height: 2),
+                          Row(
+                            children: List.generate(
+                              5, // Generate 5 stars
+                                  (index) => Icon(Icons.star, color: Colors.amber, size: 16),
+                            ),
+                          ),
+                          SizedBox(height: 12),
+                          reviewCard(
+                            'assets/reviewer.jpg',
+                            'Guillermo Raby',
+                            'Juan is very accommodating and easy to talk to. Very smooth transaction.',
+                          ),
                         ],
-                      ),
-                      SizedBox(height: 12),
-                      reviewCard(
-                        'assets/reviewer.jpg',
-                        'Guillermo Raby',
-                        'Juan is very accommodating and easy to talk to. Very smooth transaction.',
                       ),
                     ],
                   ),
@@ -143,4 +180,3 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 }
-

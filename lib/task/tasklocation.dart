@@ -115,7 +115,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
       children: [
         CircleAvatar(
           radius: 6,
-          backgroundColor: isActive ? Colors.green : Colors.grey.shade300,
+          backgroundColor: isActive ? Color.fromRGBO(69, 178, 143, 1) : Colors.grey.shade300,
         ),
         const SizedBox(height: 4),
         Text(

@@ -95,7 +95,7 @@ class UserInfoDone extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => ReceiptScreen(), // Ensure this class exists
+                              builder: (context) => ReceiptScreen(), //New Receipt Screen
                             ),
                           );
                         },

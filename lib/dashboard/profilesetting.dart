@@ -1,9 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'profileedit.dart';
 import 'payment.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
 
 class EditProfileScreen extends StatelessWidget {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  // Taking user data
+  Stream<DocumentSnapshot> getUserData() {
+    final user = _auth.currentUser;
+    if (user != null) {
+      return FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .snapshots();
+    } else {
+      throw Exception('User not logged in');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,32 +39,50 @@ class EditProfileScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Profile Section
-            Row(
-              children: [
-                CircleAvatar(
-                  radius: 40,
-                  backgroundImage: NetworkImage(
-                      'Verified.png'),
-                ),
-                SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Juan Dela Cruz',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.edit),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => Profileedit()),
-                    );
-                  },
-                ),
-              ],
+            StreamBuilder<DocumentSnapshot>(
+              stream: getUserData(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+
+                if (!snapshot.hasData || !snapshot.data!.exists) {
+                  return Center(child: Text('User not found.'));
+                }
+
+                var userData = snapshot.data!;
+                print("User Data: ${userData.data()}");
+                String userName = userData['name'] ?? 'No name available';
+
+                return Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 40,
+                      backgroundImage: NetworkImage(
+                          'https://example.com/path/to/profile/image.png'),
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        userName,  // username
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.edit),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => Profileedit()),
+                        );
+                      },
+                    ),
+                  ],
+                );
+              },
             ),
             SizedBox(height: 24),
+
             // Account Settings
             Text(
               'My account',
@@ -72,7 +106,7 @@ class EditProfileScreen extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
+                  backgroundColor: Color(0xFF45B28F),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -108,11 +142,11 @@ class EditProfileScreen extends StatelessWidget {
             ),
           );
         } else if (title == 'Saved Places') {
-          // Navigate to Saved Places screen
+          //Saved Places screen
         } else if (title == 'Help Center') {
-          // Navigate to Help Center screen
+          //Help Center screen
         } else if (title == 'Settings') {
-          // Navigate to Settings screen
+          //Settings screen
         }
       },
     );
