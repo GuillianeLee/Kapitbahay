@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import '/task/details.dart';
+import '/firebase/firestore.dart';
 
 class TaskFormScreen extends StatefulWidget {
   final String selectedCategory;
+  final String taskId; // taskID
 
-  const TaskFormScreen({Key? key, required this.selectedCategory}) : super(key: key);
+  const TaskFormScreen({Key? key, required this.selectedCategory, required this.taskId}) : super(key: key);
 
   @override
   State<TaskFormScreen> createState() => _TaskFormScreenState();
@@ -16,6 +18,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
   bool isUrgent = false;
+  final DatabaseService _databaseService = DatabaseService();
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -24,7 +27,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
       firstDate: DateTime.now(),
       lastDate: DateTime(2101),
     );
-    if (picked != null && picked != _selectedDate) {
+    if (picked != null) {
       setState(() {
         _selectedDate = picked;
       });
@@ -36,11 +39,59 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
       context: context,
       initialTime: TimeOfDay.now(),
     );
-    if (picked != null && picked != _selectedTime) {
+    if (picked != null) {
       setState(() {
         _selectedTime = picked;
       });
     }
+  }
+
+  void _saveTaskDetails() async {
+    try {
+      String formattedDate = _selectedDate != null ? _selectedDate.toString().split(" ")[0] : "Not set";
+      String formattedTime = _selectedTime != null ? _selectedTime!.format(context) : "Not set";
+
+      // update Firestore
+      Map<String, dynamic> taskData = {
+        'title': _titleController.text,
+        'description': _descriptionController.text,
+        'date': formattedDate,
+        'time': formattedTime,
+        'isUrgent': isUrgent,
+      };
+
+      await _databaseService.updateTask(widget.taskId, taskData);
+
+      // next screen
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => TaskDetailsBudgetScreen(taskId: widget.taskId),
+        ),
+      );
+    } catch (e) {
+      print("Error updating task: $e");
+    }
+  }
+
+  Widget _buildStep(String label, bool isActive) {
+    return Column(
+      children: [
+        CircleAvatar(
+          radius: 8,
+          backgroundColor: isActive ? const Color(0xFF45B28F) : Colors.grey,
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: isActive ? Colors.black : Colors.grey,
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -74,6 +125,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
               ),
               SizedBox(height: 20),
               TextField(
+                controller: _titleController,
                 decoration: InputDecoration(
                   labelText: "Request Title",
                   border: OutlineInputBorder(),
@@ -81,6 +133,7 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
               ),
               SizedBox(height: 10),
               TextField(
+                controller: _descriptionController,
                 maxLines: 6,
                 decoration: InputDecoration(
                   labelText: "Description",
@@ -88,31 +141,82 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
                 ),
               ),
               SizedBox(height: 10),
+
               ListTile(
-                leading: Icon(Icons.calendar_today),
-                title: Text("Select target date"),
-                onTap: () {}, // Add date logic
+                leading: Icon(Icons.calendar_today, color: Colors.black),
+                title: Text(
+                  _selectedDate != null
+                      ? "Target Date: ${_selectedDate!.year}-${_selectedDate!.month.toString().padLeft(2, '0')}-${_selectedDate!.day.toString().padLeft(2, '0')}"
+                      : "Select target date",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: _selectedDate != null
+                        ? Color.fromRGBO(69, 178, 143, 1) // ✅ Applies custom color if date is selected
+                        : Colors.black, // Default color for placeholder
+                  ),
+                ),
+                onTap: () async {
+                  final DateTime? picked = await showDatePicker(
+                    context: context,
+                    initialDate: _selectedDate ?? DateTime.now(),
+                    firstDate: DateTime.now(),
+                    lastDate: DateTime(2101),
+                  );
+
+                  if (picked != null && picked != _selectedDate) {
+                    setState(() {
+                      _selectedDate = picked;
+                    });
+                  }
+                },
               ),
+
               ListTile(
-                leading: Icon(Icons.access_time),
-                title: Text("Enter target time"),
-                onTap: () {}, // Add time logic
+                leading: Icon(Icons.access_time, color: Colors.black),
+                title: Text(
+                  _selectedTime != null
+                      ? "Target Time: ${_selectedTime!.format(context)}"
+                      : "Enter target time",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: _selectedTime != null
+                        ? Color.fromRGBO(69, 178, 143, 1)
+                        : Colors.black,
+                  ),
+                ),
+                onTap: () async {
+                  final TimeOfDay? picked = await showTimePicker(
+                    context: context,
+                    initialTime: _selectedTime ?? TimeOfDay.now(),
+                  );
+
+                  if (picked != null && picked != _selectedTime) {
+                    setState(() {
+                      _selectedTime = picked;
+                    });
+                  }
+                },
               ),
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text("Urgent", style: TextStyle(fontSize: 16)),
-                  Switch(value: false, onChanged: (val) {}),
+                  Switch(
+                    value: isUrgent,
+                    onChanged: (val) {
+                      setState(() {
+                        isUrgent = val;
+                      });
+                    },
+                  ),
                 ],
               ),
               SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => TaskDetailsBudgetScreen()),
-                  );
-                },
+                onPressed: _saveTaskDetails,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color.fromRGBO(69, 178, 143, 1),
                   minimumSize: Size(double.infinity, 50),
@@ -131,24 +235,4 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
       ),
     );
   }
-}
-
-Widget _buildStep(String label, bool isActive) {
-  return Column(
-    children: [
-      CircleAvatar(
-        radius: 8,
-        backgroundColor: isActive ? Color(0xFF45B28F) : Colors.grey,
-      ),
-      const SizedBox(height: 4),
-      Text(
-        label,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-          color: isActive ? Colors.black : Colors.grey,
-        ),
-      ),
-    ],
-  );
 }

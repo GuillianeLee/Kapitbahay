@@ -1,13 +1,41 @@
 import 'package:flutter/material.dart';
+import '/firebase/firestore.dart';
 import '/location/locationsearch.dart';
 
 class LocationSelectionScreen extends StatefulWidget {
+  final String taskId;
+
+  LocationSelectionScreen({Key? key, required this.taskId}) : super(key: key);
+
   @override
   _LocationSelectionScreenState createState() => _LocationSelectionScreenState();
 }
 
 class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
   final TextEditingController _locationController = TextEditingController();
+  final DatabaseService _databaseService = DatabaseService();
+
+  void _saveLocationDetails() async {
+    try {
+      // Prepare location data
+      Map<String, dynamic> locationData = {
+        'location': _locationController.text,
+      };
+
+      // Update Firestore with location
+      await _databaseService.updateTask(widget.taskId, locationData);
+
+      // Navigate to UserInfoCard after saving
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => UserInfoCard(),
+        ),
+      );
+    } catch (e) {
+      print("Error updating location: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -84,12 +112,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => UserInfoCard()),
-                  );
-                },
+                onPressed: _saveLocationDetails, // ✅ Call Firestore update before navigating
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color.fromRGBO(69, 178, 143, 1),
                   padding: const EdgeInsets.symmetric(vertical: 14),

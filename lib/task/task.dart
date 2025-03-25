@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '/firebase/firestore.dart';
 import 'description.dart';
 
 class TaskSelectionScreen extends StatelessWidget {
@@ -10,6 +11,7 @@ class TaskSelectionScreen extends StatelessWidget {
     "Drop offs",
     "Others",
   ];
+  final DatabaseService _databaseService = DatabaseService();
 
   TaskSelectionScreen({Key? key, required this.categoryTitle}) : super(key: key);
 
@@ -56,15 +58,24 @@ class TaskSelectionScreen extends StatelessWidget {
                 return ListTile(
                   title: Text(categories[index]),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => TaskFormScreen(
-                          selectedCategory: categories[index],
-                        ),
-                      ),
-                    );
+                  onTap: () async {
+                    try {
+                      // Create a new task in Firestore and get the taskId
+                      String? taskId = await _databaseService.addTask(categories[index]);
+                      if (taskId != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => TaskFormScreen(
+                              selectedCategory: categories[index],
+                              taskId: taskId,
+                            ),
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      print("Error adding task: $e");
+                    }
                   },
                 );
               },
@@ -80,7 +91,7 @@ class TaskSelectionScreen extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 8,
-          backgroundColor: isActive ? Color(0xFF45B28F) : Colors.grey,
+          backgroundColor: isActive ? const Color(0xFF45B28F) : Colors.grey,
         ),
         const SizedBox(height: 4),
         Text(
@@ -92,27 +103,6 @@ class TaskSelectionScreen extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class CategoryDetailScreen extends StatelessWidget {
-  final String category;
-
-  const CategoryDetailScreen({Key? key, required this.category}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(category),
-      ),
-      body: Center(
-        child: Text(
-          "Details for $category",
-          style: const TextStyle(fontSize: 20),
-        ),
-      ),
     );
   }
 }

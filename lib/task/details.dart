@@ -1,19 +1,51 @@
 import 'package:flutter/material.dart';
 import '/task/tasklocation.dart';
-import '/location/locationsearch.dart';
+import '/firebase/firestore.dart';
 
 class TaskDetailsBudgetScreen extends StatefulWidget {
+  final String taskId; // taskId
+
+  TaskDetailsBudgetScreen({Key? key, required this.taskId}) : super(key: key);
+
   @override
   _TaskDetailsBudgetScreenState createState() => _TaskDetailsBudgetScreenState();
 }
 
 class _TaskDetailsBudgetScreenState extends State<TaskDetailsBudgetScreen> {
-  int kapitbahayNeeded = 1; // add logic pa
+  final DatabaseService _databaseService = DatabaseService();
+
+  int kapitbahayNeeded = 1;
   TextEditingController budgetController = TextEditingController();
   TextEditingController additionalCostController = TextEditingController();
   bool isNegotiable = false;
-  String paymentType = "One-time payment"; // Default
-  String paymentMethod = "Cash upon task complete"; // Default
+  String paymentType = "One-time payment";
+  String paymentMethod = "Cash upon task complete";
+
+  void _saveTaskDetails() async {
+    try {
+      Map<String, dynamic> taskData = {
+        'kapitbahayNeeded': kapitbahayNeeded,
+        'budget': budgetController.text,
+        'additionalCost': additionalCostController.text,
+        'isNegotiable': isNegotiable,
+        'paymentType': paymentType,
+        'paymentMethod': paymentMethod,
+      };
+
+      print("Task ID before updating: ${widget.taskId}");
+
+      await _databaseService.updateTask(widget.taskId, taskData);
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => LocationSelectionScreen(taskId: widget.taskId),
+        ),
+      );
+    } catch (e) {
+      print("Error updating task: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -118,12 +150,8 @@ class _TaskDetailsBudgetScreenState extends State<TaskDetailsBudgetScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => LocationSelectionScreen()),
-                    );
+                  onPressed: () async {
+                    _saveTaskDetails();
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color.fromRGBO(69, 178, 143, 1),
