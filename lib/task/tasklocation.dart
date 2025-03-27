@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import '/firebase/firestore.dart';
+import '/location/choosefrommap.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '/location/locationsearch.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 
 class LocationSelectionScreen extends StatefulWidget {
   final String taskId;
@@ -14,23 +18,59 @@ class LocationSelectionScreen extends StatefulWidget {
 class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
   final TextEditingController _locationController = TextEditingController();
   final DatabaseService _databaseService = DatabaseService();
+  LatLng? _selectedLocation;
+  bool _locationChosen = false;
+
+  Future<void> _openMapScreen() async {
+    final LatLng? result = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => LocationPickerScreen()),
+    );
+
+    if (result != null) {
+      String address = await _getAddressFromLatLng(result.latitude, result.longitude);
+      setState(() {
+        _selectedLocation = result;
+        _locationController.text = address;
+        _locationChosen = true; // Active Continue button
+      });
+    }
+  }
+
+  Future<String> _getAddressFromLatLng(double lat, double lng) async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(lat, lng);
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks.first;
+        return "${place.street}, ${place.locality}, ${place.country}";
+      }
+      return "Unknown Location";
+    } catch (e) {
+      print("Error getting address: $e");
+      return "Error retrieving address";
+    }
+  }
 
   void _saveLocationDetails() async {
+    if (_selectedLocation == null) return;
+
     try {
-      // Prepare location data
+      String address = await _getAddressFromLatLng(
+        _selectedLocation!.latitude,
+        _selectedLocation!.longitude,
+      );
+
       Map<String, dynamic> locationData = {
-        'location': _locationController.text,
+        'latitude': _selectedLocation!.latitude,
+        'longitude': _selectedLocation!.longitude,
+        'address': address,
       };
 
-      // Update Firestore with location
       await _databaseService.updateTask(widget.taskId, locationData);
 
-      // Navigate to UserInfoCard after saving
       Navigator.push(
         context,
-        MaterialPageRoute(
-          builder: (context) => UserInfoCard(),
-        ),
+        MaterialPageRoute(builder: (context) => UserInfoCard()),
       );
     } catch (e) {
       print("Error updating location: $e");
@@ -70,6 +110,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
             // Location Input Field
             TextField(
               controller: _locationController,
+              readOnly: true,
               decoration: InputDecoration(
                 hintText: "Location",
                 prefixIcon: const Icon(Icons.location_on, color: Colors.grey),
@@ -89,14 +130,18 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
             ),
             const SizedBox(height: 20),
 
-            // Add Drop Off Text
-            const Text("Add Drop off?", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
-            const SizedBox(height: 10),
-
             // Use My Current Location
             GestureDetector(
-              onTap: () {
-                print("Using current location...");
+              onTap: () async {
+                Position position = await Geolocator.getCurrentPosition();
+                LatLng userLocation = LatLng(position.latitude, position.longitude);
+                String address = await _getAddressFromLatLng(position.latitude, position.longitude);
+
+                setState(() {
+                  _selectedLocation = userLocation;
+                  _locationController.text = address;
+                  _locationChosen = true;
+                });
               },
               child: Row(
                 children: [
@@ -105,23 +150,20 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
                   const Text("Use my current location", style: TextStyle(fontSize: 16)),
                 ],
               ),
-            ),
-            const Spacer(),
+            ), const Spacer(),
 
-            // Choose from Map
+            // Choose from Map / Continue Button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: _saveLocationDetails, // ✅ Call Firestore update before navigating
+                onPressed: _locationChosen ? _saveLocationDetails : _openMapScreen,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color.fromRGBO(69, 178, 143, 1),
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
-                child: const Text(
-                  "Choose from map",
+                child: Text(
+                  _locationChosen ? "Continue" : "Choose from map",
                   style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
               ),
@@ -132,7 +174,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
     );
   }
 
-  // Progress Indicator
+  // Progress
   Widget _buildStep(String title, bool isActive) {
     return Column(
       children: [

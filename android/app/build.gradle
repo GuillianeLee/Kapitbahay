@@ -8,6 +8,10 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
+dependencies {
+    implementation 'com.google.android.gms:play-services-maps:18.1.0'
+}
+
 android {
     namespace = "com.example.kapitbahayapp"
     compileSdk = flutter.compileSdkVersion
