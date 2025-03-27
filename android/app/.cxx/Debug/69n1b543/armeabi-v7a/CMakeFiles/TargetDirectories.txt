@@ -1,0 +1,2 @@
+/Users/guillianecantillas/Kapitbahay/android/app/.cxx/Debug/69n1b543/armeabi-v7a/CMakeFiles/edit_cache.dir
+/Users/guillianecantillas/Kapitbahay/android/app/.cxx/Debug/69n1b543/armeabi-v7a/CMakeFiles/rebuild_cache.dir
