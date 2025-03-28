@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '/firebase/firestore.dart';
 import '/location/choosefrommap.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import '/location/locationsearch.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:geolocator/geolocator.dart';
+import '/location/locationsearch.dart';
 
 class LocationSelectionScreen extends StatefulWidget {
   final String taskId;
@@ -32,7 +32,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
       setState(() {
         _selectedLocation = result;
         _locationController.text = address;
-        _locationChosen = true; // Active Continue button
+        _locationChosen = true; // Continue button
       });
     }
   }
@@ -48,6 +48,61 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
     } catch (e) {
       print("Error getting address: $e");
       return "Error retrieving address";
+    }
+  }
+
+  Future<void> _fetchCurrentLocation() async {
+    try {
+      // Show loading dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const AlertDialog(
+          content: Row(
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 20),
+              Text("Fetching location..."),
+            ],
+          ),
+        ),
+      );
+
+      Position position = await Geolocator.getCurrentPosition();
+      LatLng userLocation = LatLng(position.latitude, position.longitude);
+      String address = await _getAddressFromLatLng(position.latitude, position.longitude);
+
+      // Close loading popup
+      if (mounted) {
+        Navigator.pop(context);
+      }
+
+      setState(() {
+        _selectedLocation = userLocation;
+        _locationController.text = address;
+        _locationChosen = true;
+      });
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context);
+      }
+
+      print("Error fetching location: $e");
+
+      // Show error dialog
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("Location Error"),
+          content: const Text("Failed to get current location. Make sure location services are enabled."),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("OK"),
+            ),
+          ],
+        ),
+      );
     }
   }
 
@@ -68,9 +123,17 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
 
       await _databaseService.updateTask(widget.taskId, locationData);
 
+      // Navigate to UserInfoCard
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => UserInfoCard()),
+        MaterialPageRoute(
+          builder: (context) =>
+              UserInfoCard(
+                selectedLocation: _selectedLocation!,
+                selectedAddress: address,
+                taskId: widget.taskId, // taskId
+              ),
+        ),
       );
     } catch (e) {
       print("Error updating location: $e");
@@ -130,27 +193,25 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
             ),
             const SizedBox(height: 20),
 
-            // Use My Current Location
-            GestureDetector(
-              onTap: () async {
-                Position position = await Geolocator.getCurrentPosition();
-                LatLng userLocation = LatLng(position.latitude, position.longitude);
-                String address = await _getAddressFromLatLng(position.latitude, position.longitude);
-
-                setState(() {
-                  _selectedLocation = userLocation;
-                  _locationController.text = address;
-                  _locationChosen = true;
-                });
-              },
-              child: Row(
-                children: [
-                  Icon(Icons.person_pin_circle, color: Color(0xFF45B28F)),
-                  const SizedBox(width: 10),
-                  const Text("Use my current location", style: TextStyle(fontSize: 16)),
-                ],
+            // Use My Current Location (Updated as a Button)
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: _fetchCurrentLocation,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF45B28F),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                icon: const Icon(Icons.my_location, color: Colors.white),
+                label: const Text(
+                  "Use My Current Location",
+                  style: TextStyle(fontSize: 16, color: Colors.white),
+                ),
               ),
-            ), const Spacer(),
+            ),
+
+            const Spacer(),
 
             // Choose from Map / Continue Button
             SizedBox(
@@ -158,13 +219,13 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
               child: ElevatedButton(
                 onPressed: _locationChosen ? _saveLocationDetails : _openMapScreen,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color.fromRGBO(69, 178, 143, 1),
+                  backgroundColor: const Color.fromRGBO(69, 178, 143, 1),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                 ),
                 child: Text(
-                  _locationChosen ? "Continue" : "Choose from map",
-                  style: TextStyle(fontSize: 18, color: Colors.white),
+                  _locationChosen ? "Continue" : "Choose from Map",
+                  style: const TextStyle(fontSize: 18, color: Colors.white),
                 ),
               ),
             ),
@@ -180,7 +241,7 @@ class _LocationSelectionScreenState extends State<LocationSelectionScreen> {
       children: [
         CircleAvatar(
           radius: 6,
-          backgroundColor: isActive ? Color.fromRGBO(69, 178, 143, 1) : Colors.grey.shade300,
+          backgroundColor: isActive ? const Color.fromRGBO(69, 178, 143, 1) : Colors.grey.shade300,
         ),
         const SizedBox(height: 4),
         Text(

@@ -22,15 +22,15 @@ class _TaskDetailsBudgetScreenState extends State<TaskDetailsBudgetScreen> {
   String paymentMethod = "Cash upon task complete";
 
   void _saveTaskDetails() async {
-    try {
-      Map<String, dynamic> taskData = {
-        'kapitbahayNeeded': kapitbahayNeeded,
-        'budget': budgetController.text,
-        'additionalCost': additionalCostController.text,
-        'isNegotiable': isNegotiable,
-        'paymentType': paymentType,
-        'paymentMethod': paymentMethod,
-      };
+      try {
+        Map<String, dynamic> taskData = {
+          'kapitbahayNeeded': kapitbahayNeeded,
+          'budget': int.tryParse(budgetController.text) ?? 0,
+          'additionalCost': int.tryParse(additionalCostController.text) ?? 0,
+          'isNegotiable': isNegotiable,
+          'paymentType': paymentType,
+          'paymentMethod': paymentMethod,
+        };
 
       print("Task ID before updating: ${widget.taskId}");
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'now.dart';
-import '/chat/chat.dart';
+import '/negotiable/chatif.dart';
 
 class UserInfoAccepted extends StatelessWidget {
   const UserInfoAccepted({super.key});
@@ -87,7 +87,7 @@ class UserInfoAccepted extends StatelessWidget {
                         onPressed: () {
                           showDialog(
                             context: context,
-                            builder: (context) => UserInfoDone(), // const is good here (ChatScreen for viewing of chat)
+                            builder: (context) => ChatOfferScreen(), // const is good here (ChatScreen for viewing of chat)
                           );
                         }, // Chat action
                         style: OutlinedButton.styleFrom(

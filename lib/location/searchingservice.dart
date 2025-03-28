@@ -1,21 +1,12 @@
 import 'package:flutter/material.dart';
 import 'accepted.dart';
 
-class UserRatingPopup extends StatefulWidget {
+class Kapitbuddyfinder extends StatefulWidget {
   @override
-  _UserRatingPopupState createState() => _UserRatingPopupState();
+  _KapitbuddyfinderState createState() => _KapitbuddyfinderState();
 }
 
-class _UserRatingPopupState extends State<UserRatingPopup> {
-  int _selectedStars = 0;
-  final TextEditingController _reviewController = TextEditingController();
-
-  void _submitRating() {
-    // Rating submission
-    print("Rated: $_selectedStars stars");
-    print("Review: ${_reviewController.text}");
-  }
-
+class _KapitbuddyfinderState extends State<Kapitbuddyfinder> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -67,9 +58,9 @@ class _UserRatingPopupState extends State<UserRatingPopup> {
                         children: [
                           Icon(Icons.star, color: Colors.orange, size: 18),
                           Text(
-                            "4.8",
-                            style: TextStyle(fontSize: 16)),
-                          TextButton( //have to change this pa kasi it has spaces
+                              "4.8",
+                              style: TextStyle(fontSize: 16)),
+                          TextButton(
                             onPressed: () {}, // Insert task details
                             child: const Text(
                               "View Task Details",
@@ -78,40 +69,40 @@ class _UserRatingPopupState extends State<UserRatingPopup> {
                           ),
                         ],
                       ),
-
                     ],
                   ),
                 ),
               ],
             ),
+            const SizedBox(height: 10),
+
             Row(
               children: [
                 Expanded(
                   child: OutlinedButton(
                     onPressed: () => Navigator.pop(context),
-                    child: Text("Cancel"),
-                  style: OutlinedButton.styleFrom(
-                    // backgroundColor: Color.fromRGBO(69, 178, 143, 1),
-                    minimumSize: Size(double.infinity, 50),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                    child: const Text("Cancel"),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                   ),
                 ),
-                ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
 
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
                       showDialog(
                         context: context,
-                        builder: (context) => UserInfoAccepted(), // const is good here
+                        builder: (context) => UserInfoAccepted(),
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color.fromRGBO(69, 178, 143, 1),
-                      minimumSize: Size(double.infinity, 50),
+                      backgroundColor: const Color.fromRGBO(69, 178, 143, 1),
+                      minimumSize: const Size(double.infinity, 50),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -120,9 +111,9 @@ class _UserRatingPopupState extends State<UserRatingPopup> {
                       "Accept",
                       style: TextStyle(fontSize: 16, color: Colors.white),
                     ),
+                  ),
                 ),
-                ),
-                  ],
+              ],
             ),
           ],
         ),
@@ -131,8 +122,8 @@ class _UserRatingPopupState extends State<UserRatingPopup> {
   }
 }
 
-// Usage:
+// Usage: Call this inside a widget
 // showDialog(
 //   context: context,
-//   builder: (context) => UserRatingPopup(),
+//   builder: (context) => Kapitbuddyfinder(),
 // );
